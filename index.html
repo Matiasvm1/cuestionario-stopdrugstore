@@ -171,6 +171,14 @@ input[type="text"]:focus-visible, textarea:focus-visible { outline: 2px solid va
 .chips.multi label::before { content: ""; width: 14px; height: 14px; margin-right: 8px; border: 1.5px solid currentColor; border-radius: 4px; flex: none; opacity: .6; }
 .chips.multi .sr:checked + label::before { opacity: 1; background: currentColor; box-shadow: inset 0 0 0 2px var(--ink); }
 
+.perm .t { font-weight: 600; font-size: 17px; line-height: 1.3; }
+.perm-rows { display: grid; gap: 8px; }
+.prow { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 8px; }
+.prole { font-size: 14px; font-weight: 500; color: var(--muted); }
+.chips.sm { gap: 6px; }
+.chips.sm label { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+.perm-hint { margin: 0; padding: 16px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+
 details.cm { padding-top: 14px; }
 details.cm summary { cursor: pointer; color: var(--muted); font-size: 15px; font-weight: 500; width: fit-content; }
 details.cm summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -238,10 +246,6 @@ details.cm textarea { margin-top: 8px; }
     <p class="lead">Este cuestionario es para armar el sistema de Stop a tu medida. Leé cada función y marcá cuánto la necesitás. No hay respuestas incorrectas: si algo no lo tenés claro, marcá «No sé» y lo charlamos.</p>
     <p class="lead">Lleva unos 15 minutos. Si marcaste algo sin querer, tocalo de nuevo y se desmarca. Al final te muestra un resumen para mandárselo a Matías por WhatsApp.</p>
     <div class="status" id="status" data-s="local">Preparando…</div>
-    <div class="field">
-      <label for="nombre">Tu nombre</label>
-      <input type="text" id="nombre" autocomplete="name" placeholder="Para saber quién respondió">
-    </div>
     <div class="legend" aria-label="Qué significa cada opción">
       <div class="lg-ya"><b>Lo necesito ya</b><span>Sin esto no lo usaría.</span></div>
       <div class="lg-despues"><b>Más adelante</b><span>Estaría bueno, puede esperar.</span></div>
@@ -285,10 +289,20 @@ details.cm textarea { margin-top: 8px; }
     { v: "nose", label: "No sé" }
   ];
   var PRIO_LABEL = { ya: "LO NECESITO YA", despues: "MÁS ADELANTE", nose: "NO SÉ", no: "NO ME SIRVE" };
+  var ROLES = [
+    { k: "encargado", label: "Encargado" },
+    { k: "cajero", label: "Cajero" },
+    { k: "repositor", label: "Repositor" }
+  ];
+  var PERM_OPTS = [
+    { v: "si", label: "Sí", p: "opt" },
+    { v: "ok", label: "Con tu OK", p: "despues" },
+    { v: "no", label: "No", p: "no" }
+  ];
+  var PERM_TXT = { si: "Sí", ok: "Con OK del dueño", no: "No" };
 
   var SECTIONS = [
     { id: "negocio", title: "Tu negocio hoy", note: "Unas preguntas rápidas para entender cómo trabajás.", items: [
-      { id: "q_cajas", k: "single", t: "¿Cuántos puestos de cobro tenés?", opts: ["1", "2", "3 o más"] },
       { id: "q_personal", k: "text", t: "¿Cuántas personas atienden y en cuántos turnos?", ph: "Ej.: 3 personas, 2 turnos" },
       { id: "q_productos", k: "single", t: "¿Cuántos productos distintos vendés, más o menos?", opts: ["Menos de 500", "500 a 1.500", "1.500 a 3.000", "Más de 3.000", "No sé"] },
       { id: "q_sistema", k: "text", t: "¿Qué sistema usás hoy?", ph: "Nombre del programa", none: "Nada" },
@@ -370,9 +384,22 @@ details.cm textarea { margin-top: 8px; }
       { id: "r05", ref: "Costos por proveedor", k: "prio", t: "Cuánto te aumentó cada proveedor", h: "Cómo fueron cambiando los costos en el tiempo." },
       { id: "q_numeros", k: "long", t: "¿Qué números mirás hoy y cada cuánto?", none: "Nada" }
     ]},
-    { id: "empleados", title: "Empleados y control", items: [
-      { id: "u01", ref: "Usuarios y roles", k: "prio", t: "Un usuario por empleado, con permisos según el puesto", h: "Cada uno entra con su clave; el cajero no puede cambiar precios ni ajustar stock." },
-      { id: "u03", ref: "Ver costos", k: "prio", t: "Que los empleados no vean costos ni ganancias", h: "Esa información queda solo para vos." },
+    { id: "usuarios", title: "Usuarios y permisos", note: "Cada persona entra al sistema con su propio usuario. Vos, como dueño, podés hacer todo. Para cada tarea marcá qué puede hacer cada uno: «Sí», «Con tu OK» (solo si lo autorizás con tu clave en ese momento) o «No».", items: [
+      { id: "q_roles", k: "multi", t: "¿Quiénes van a usar el sistema además de vos?", opts: ["Encargado", "Cajero", "Repositor"], none: "Nadie más" },
+      { id: "pm_vender", k: "perm", t: "Vender y cobrar" },
+      { id: "pm_anular", k: "perm", t: "Anular una venta o hacer una devolución" },
+      { id: "pm_desc", k: "perm", t: "Hacer descuentos" },
+      { id: "pm_fiar", k: "perm", t: "Fiar a un cliente" },
+      { id: "pm_precios", k: "perm", t: "Cambiar precios" },
+      { id: "pm_mercaderia", k: "perm", t: "Cargar la mercadería que llega" },
+      { id: "pm_ajuste", k: "perm", t: "Ajustar stock (roturas, vencidos, faltantes)" },
+      { id: "pm_caja", k: "perm", t: "Abrir y cerrar la caja" },
+      { id: "pm_retiros", k: "perm", t: "Sacar plata de la caja (pagos, gastos)" },
+      { id: "pm_proveedores", k: "perm", t: "Pagar a proveedores" },
+      { id: "pm_costos", k: "perm", t: "Ver costos y ganancias" },
+      { id: "pm_reportes", k: "perm", t: "Ver los reportes de ventas" },
+      { id: "pm_cierres", k: "perm", t: "Ver los cierres de caja de otros" },
+      { id: "pm_usuarios", k: "perm", t: "Crear usuarios y cambiar permisos" },
       { id: "u04", ref: "Auditoría", k: "prio", t: "Historial de cambios", h: "Quién cambió un precio, anuló una venta o ajustó stock, y cuándo." }
     ]},
     { id: "otros", title: "Otras cosas", items: [
@@ -389,6 +416,11 @@ details.cm textarea { margin-top: 8px; }
   SECTIONS.forEach(function (s) { s.items.forEach(function (it) { it.sec = s.id; ALL.push(it); }); });
   var BY_ID = {};
   ALL.forEach(function (it) { BY_ID[it.id] = it; });
+  /* Cada celda de permiso (tarea × rol) es un grupo de radios propio. */
+  ALL.forEach(function (it) {
+    if (it.k !== "perm") return;
+    ROLES.forEach(function (r) { var n = it.id + "__" + r.k; BY_ID[n] = { id: n, k: "cell" }; });
+  });
 
   var KEY = "stop-cuestionario-v1";
   var S = { nombre: "", r: {}, c: {}, estado: "borrador", enviado: null };
@@ -404,6 +436,19 @@ details.cm textarea { margin-top: 8px; }
   /* ---------- Render ---------- */
   function renderItem(it) {
     var html = "";
+    if (it.k === "perm") {
+      html += '<div class="item perm" id="it-' + it.id + '"><span class="t">' + esc(it.t) + '</span><div class="perm-rows">';
+      ROLES.forEach(function (r) {
+        var name = it.id + "__" + r.k;
+        html += '<div class="prow" data-role="' + r.k + '" role="radiogroup" aria-label="' + esc(r.label + ": " + it.t) + '"><span class="prole">' + esc(r.label) + '</span><div class="chips sm">';
+        PERM_OPTS.forEach(function (o) {
+          var oid = name + "__" + o.v;
+          html += '<input class="sr" type="radio" id="' + oid + '" name="' + name + '" value="' + o.v + '"><label for="' + oid + '" data-p="' + o.p + '">' + esc(o.label) + "</label>";
+        });
+        html += "</div></div>";
+      });
+      return html + "</div></div>";
+    }
     if (it.k === "prio" || it.k === "single" || it.k === "multi") {
       var isQ = it.k !== "prio";
       html += '<fieldset class="item' + (isQ ? " q" : "") + '" id="it-' + it.id + '"><legend><span class="t">' + esc(it.t) + "</span>" + (it.h ? '<span class="h">' + esc(it.h) + "</span>" : "") + "</legend>";
@@ -439,7 +484,10 @@ details.cm textarea { margin-top: 8px; }
     SECTIONS.forEach(function (s, i) {
       out += '<section class="sec" id="sec-' + s.id + '" aria-labelledby="h-' + s.id + '">';
       out += '<div class="sec-head"><div class="eyebrow">Sección ' + (i + 1) + " de " + SECTIONS.length + '</div><h2 id="h-' + s.id + '">' + esc(s.title) + "</h2>" + (s.note ? '<p class="sec-note">' + esc(s.note) + "</p>" : "") + "</div>";
-      s.items.forEach(function (it) { out += renderItem(it); });
+      s.items.forEach(function (it) {
+        out += renderItem(it);
+        if (it.id === "q_roles") out += '<p class="perm-hint" id="permHint" hidden></p>';
+      });
       out += '<details class="cm" id="cm-' + s.id + '"><summary>Agregar un comentario sobre esta sección</summary><textarea id="c-' + s.id + '" data-c="' + s.id + '" aria-label="Comentario sobre ' + esc(s.title) + '"></textarea></details>';
       out += "</section>";
       toc += '<li><a href="#sec-' + s.id + '"><span>' + esc(s.title) + '</span><span class="n" id="n-' + s.id + '"></span></a></li>';
@@ -450,9 +498,15 @@ details.cm textarea { margin-top: 8px; }
   }
 
   function applyState() {
-    document.getElementById("nombre").value = S.nombre || "";
     ALL.forEach(function (it) {
       var val = S.r[it.id];
+      if (it.k === "perm") {
+        ROLES.forEach(function (r) {
+          var n = it.id + "__" + r.k, cv = S.r[n], rs = document.getElementsByName(n);
+          for (var q = 0; q < rs.length; q++) rs[q].checked = (cv != null && rs[q].value === cv);
+        });
+        return;
+      }
       if (it.k === "prio" || it.k === "single") {
         var inputs = document.getElementsByName(it.id);
         for (var i = 0; i < inputs.length; i++) inputs[i].checked = (val != null && inputs[i].value === val);
@@ -477,7 +531,50 @@ details.cm textarea { margin-top: 8px; }
   }
 
   /* ---------- Progreso ---------- */
+  function onlyOwner() {
+    return Array.isArray(S.r.q_roles) && S.r.q_roles.indexOf("Nadie más") !== -1;
+  }
+  function activeRoles() {
+    var v = S.r.q_roles;
+    if (!Array.isArray(v)) return [];
+    return ROLES.filter(function (r) { return v.indexOf(r.label) !== -1; });
+  }
+  function updateRoles() {
+    var only = onlyOwner();
+    var keys = activeRoles().map(function (r) { return r.k; });
+    var hideAll = only || !keys.length;
+    ALL.forEach(function (it) {
+      if (it.k !== "perm") return;
+      var box = document.getElementById("it-" + it.id);
+      box.hidden = hideAll;
+      var rows = box.querySelectorAll(".prow");
+      for (var i = 0; i < rows.length; i++) rows[i].hidden = keys.indexOf(rows[i].dataset.role) === -1;
+    });
+    var hint = document.getElementById("permHint");
+    hint.hidden = !hideAll;
+    hint.textContent = only
+      ? "Solo vos vas a usar el sistema, así que no hace falta definir permisos."
+      : "Marcá arriba quiénes van a usar el sistema y te aparecen las tareas para definir qué puede hacer cada uno.";
+  }
+  function permLines() {
+    if (onlyOwner()) return [{ t: "Usuarios", v: "Solo el dueño usa el sistema" }];
+    var ar = activeRoles(), out = [];
+    ALL.forEach(function (it) {
+      if (it.k !== "perm") return;
+      var parts = [];
+      ar.forEach(function (r) { var v = S.r[it.id + "__" + r.k]; if (PERM_TXT[v]) parts.push(r.label + ": " + PERM_TXT[v]); });
+      if (parts.length) out.push({ t: it.t, v: parts.join(" · ") });
+    });
+    return out;
+  }
+
   function answered(it) {
+    if (it.k === "perm") {
+      if (onlyOwner()) return true;
+      var ar = activeRoles();
+      if (!ar.length) return false;
+      return ar.every(function (r) { return typeof S.r[it.id + "__" + r.k] === "string"; });
+    }
     var v = S.r[it.id];
     if (Array.isArray(v)) return v.length > 0;
     return typeof v === "string" && v.trim() !== "";
@@ -511,7 +608,7 @@ details.cm textarea { margin-top: 8px; }
   function qAnswers() {
     var list = [];
     ALL.forEach(function (it) {
-      if (it.k === "prio") return;
+      if (it.k === "prio" || it.k === "perm") return;
       if (!answered(it)) return;
       var v = S.r[it.id];
       list.push({ q: it.t, a: Array.isArray(v) ? v.join(", ") : v.trim() });
@@ -533,7 +630,7 @@ details.cm textarea { margin-top: 8px; }
 
   function renderTicket() {
     var g = groups();
-    var h = '<div class="tk-head"><b>STOP DRUGSTORE</b><span>Cuestionario del sistema</span><span>' + esc(S.nombre ? S.nombre : "Sin nombre") + " · " + today() + "</span></div>";
+    var h = '<div class="tk-head"><b>STOP DRUGSTORE</b><span>Cuestionario del sistema</span><span>' + today() + "</span></div>";
     h += '<hr class="tk-sep">';
     ["ya", "despues", "nose", "no"].forEach(function (k) {
       h += '<div class="tk-grp"><h3><span>' + PRIO_LABEL[k] + "</span><span>" + g[k].length + "</span></h3>";
@@ -550,6 +647,10 @@ details.cm textarea { margin-top: 8px; }
     var qa = qAnswers();
     if (qa.length) {
       h += '<hr class="tk-sep"><div class="tk-grp"><h3><span>RESPUESTAS</span></h3><div class="tk-kv">' + qa.map(function (x) { return "<div><span>" + esc(x.q) + "</span>" + esc(x.a) + "</div>"; }).join("") + "</div></div>";
+    }
+    var pl = permLines();
+    if (pl.length) {
+      h += '<hr class="tk-sep"><div class="tk-grp"><h3><span>PERMISOS</span></h3><div class="tk-kv">' + pl.map(function (x) { return "<div><span>" + esc(x.t) + "</span>" + esc(x.v) + "</div>"; }).join("") + "</div></div>";
     }
     var cm = comments();
     if (cm.length) {
@@ -578,7 +679,7 @@ details.cm textarea { margin-top: 8px; }
     var lines = [];
     var line = function (it) { lines.push("- " + it.t + (refs ? " [" + it.ref + "]" : "")); };
     lines.push(st + "Cuestionario sistema Stop Drugstore" + st);
-    lines.push("Completó: " + (S.nombre || "sin nombre") + " · " + today());
+    lines.push("Fecha: " + today());
     ["ya", "despues", "nose", "no"].forEach(function (k) {
       lines.push("");
       lines.push(st + PRIO_LABEL[k] + " (" + g[k].length + ")" + st);
@@ -594,6 +695,12 @@ details.cm textarea { margin-top: 8px; }
       lines.push("");
       lines.push(st + "RESPUESTAS" + st);
       qa.forEach(function (x) { lines.push("- " + x.q + " " + x.a); });
+    }
+    var pl = permLines();
+    if (pl.length) {
+      lines.push("");
+      lines.push(st + "PERMISOS" + st);
+      pl.forEach(function (x) { lines.push("- " + x.t + ": " + x.v); });
     }
     var cm = comments();
     if (cm.length) {
@@ -728,7 +835,7 @@ details.cm textarea { margin-top: 8px; }
 
   /* ---------- Eventos ---------- */
   var renderTimer = null;
-  function refresh() { updateProgress(); renderTicket(); }
+  function refresh() { updateRoles(); updateProgress(); renderTicket(); }
   function changed(immediate) {
     saveLocal();
     if (remote.mode !== "online") localStatus();
@@ -789,7 +896,6 @@ details.cm textarea { margin-top: 8px; }
   document.addEventListener("input", function (e) {
     var el = e.target;
     if (!el) return;
-    if (el.id === "nombre") { S.nombre = el.value; changed(false); return; }
     if (el.dataset && el.dataset.id && BY_ID[el.dataset.id]) {
       if (el.value.trim()) S.r[el.dataset.id] = el.value; else delete S.r[el.dataset.id];
       changed(false);
