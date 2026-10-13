@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Cuestionario Stop Drugstore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna angosta pensada para el celular; barra de progreso fija arriba; el resumen final se ve como un ticket de caja. */
+:root {
+  --bg: #F3F2F4;
+  --card: #FFFFFF;
+  --ink: #19171C;
+  --muted: #5D5862;
+  --line: #DCD8DF;
+  --accent: #C8202B;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FBE4E5;
+  --later: #7A4F00;
+  --later-bg: #FCEFD6;
+  --later-line: #E2BC6E;
+  --nope: #4F4A55;
+  --nope-bg: #ECEAEE;
+  --nope-line: #C2BCC8;
+  --unsure: #2B4A88;
+  --unsure-bg: #E4EAF7;
+  --unsure-line: #A3B6E0;
+  --ticket: #FFFFFF;
+  --ticket-ink: #1E1D1B;
+  --ticket-muted: #6A6762;
+  --shadow: rgba(25, 23, 28, 0.12);
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131215; --card: #1C1A1F; --ink: #F0EEF2; --muted: #A6A0AC; --line: #34303A;
+    --accent: #D9343F; --accent-ink: #FFFFFF; --accent-soft: #3A1B1F;
+    --later: #F0BE62; --later-bg: #33270F; --later-line: #6B5124;
+    --nope: #C2BCC8; --nope-bg: #29262D; --nope-line: #4A4550;
+    --unsure: #A3BBEE; --unsure-bg: #1B2538; --unsure-line: #3D5280;
+    --ticket: #ECEAE4; --ticket-ink: #1E1D1B; --ticket-muted: #5F5C57;
+    --shadow: rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131215; --card: #1C1A1F; --ink: #F0EEF2; --muted: #A6A0AC; --line: #34303A;
+  --accent: #D9343F; --accent-ink: #FFFFFF; --accent-soft: #3A1B1F;
+  --later: #F0BE62; --later-bg: #33270F; --later-line: #6B5124;
+  --nope: #C2BCC8; --nope-bg: #29262D; --nope-line: #4A4550;
+  --unsure: #A3BBEE; --unsure-bg: #1B2538; --unsure-line: #3D5280;
+  --ticket: #ECEAE4; --ticket-ink: #1E1D1B; --ticket-muted: #5F5C57;
+  --shadow: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-inline: 16px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 680px; margin: 0 auto; }
+
+/* Barra fija */
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  margin-inline: -16px;
+  padding: 10px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.bar-in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.bar-name { font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+.bar-name b { color: var(--accent); }
+.meter { flex: 1; min-width: 0; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+.bar-count { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Portada */
+.intro { padding-block: 32px 8px; display: grid; gap: 16px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 {
+  font-family: var(--f-display); font-weight: 700; font-size: clamp(36px, 9vw, 54px);
+  line-height: 1; letter-spacing: -0.005em; margin: 0; text-wrap: balance;
+}
+h1 em { font-style: normal; color: var(--accent); }
+.lead { margin: 0; max-width: 60ch; color: var(--ink); }
+.lead + .lead { color: var(--muted); }
+.status { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--nope-line); flex: none; }
+.status[data-s="online"]::before { background: #2E9E5B; }
+.status[data-s="saving"]::before { background: var(--later-line); }
+.status[data-s="warn"]::before { background: var(--accent); }
+
+.field { display: grid; gap: 6px; }
+.field label, .q-label { font-weight: 600; font-size: 16px; }
+input[type="text"], textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+textarea { min-height: 84px; resize: vertical; }
+input[type="text"]:disabled, textarea:disabled { opacity: .45; cursor: not-allowed; }
+input[type="text"]:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+::placeholder { color: var(--muted); opacity: .8; }
+
+/* Leyenda */
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.legend div { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 1px solid; font-size: 14px; }
+.legend b { font-weight: 600; }
+.legend span { color: var(--muted); }
+.lg-ya { background: var(--accent-soft); border-color: var(--accent) !important; }
+.lg-ya b { color: var(--accent); }
+.lg-despues { background: var(--later-bg); border-color: var(--later-line) !important; }
+.lg-despues b { color: var(--later); }
+.lg-no { background: var(--nope-bg); border-color: var(--nope-line) !important; }
+.lg-no b { color: var(--nope); }
+.lg-nose { background: var(--unsure-bg); border-color: var(--unsure-line) !important; border-style: dashed !important; }
+.lg-nose b { color: var(--unsure); }
+
+/* Índice */
+.toc { margin-top: 24px; border-top: 1px solid var(--line); }
+.toc h2 { font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+.toc a { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 15px; }
+.toc a:hover span:first-child { color: var(--accent); }
+.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toc .n { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.toc .n.full { color: #2E9E5B; }
+
+/* Secciones */
+.sec { padding-top: 40px; scroll-margin-top: 64px; }
+.sec-head { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.sec-head h2 { font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1.05; margin: 0; letter-spacing: 0.01em; text-transform: uppercase; text-wrap: balance; }
+.sec-note { margin: 4px 0 0; color: var(--muted); font-size: 15px; max-width: 60ch; }
+
+.item { border: 0; margin: 0; padding: 18px 0; border-bottom: 1px solid var(--line); min-width: 0; display: grid; gap: 10px; }
+.item legend { padding: 0; margin-bottom: 10px; }
+.item .t { display: block; font-weight: 600; font-size: 17px; line-height: 1.3; }
+.item .h { display: block; color: var(--muted); font-size: 15px; margin-top: 2px; font-weight: 400; }
+.item.q .t::before { content: "Pregunta · "; font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sr { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.chips label {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 8px 14px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+  font-size: 15px; font-weight: 500; cursor: pointer; user-select: none; line-height: 1.2;
+}
+.chips label:hover { border-color: var(--muted); }
+.sr:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr:checked + label { font-weight: 600; }
+.sr:checked + label[data-p="ya"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sr:checked + label[data-p="despues"] { background: var(--later-bg); border-color: var(--later-line); color: var(--later); }
+.sr:checked + label[data-p="no"] { background: var(--nope-bg); border-color: var(--nope-line); color: var(--nope); }
+.sr:checked + label[data-p="nose"] { background: var(--unsure-bg); border-color: var(--unsure-line); border-style: dashed; color: var(--unsure); }
+.sr:checked + label[data-p="opt"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.chips.multi label::before { content: ""; width: 14px; height: 14px; margin-right: 8px; border: 1.5px solid currentColor; border-radius: 4px; flex: none; opacity: .6; }
+.chips.multi .sr:checked + label::before { opacity: 1; background: currentColor; box-shadow: inset 0 0 0 2px var(--ink); }
+
+details.cm { padding-top: 14px; }
+details.cm summary { cursor: pointer; color: var(--muted); font-size: 15px; font-weight: 500; width: fit-content; }
+details.cm summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details.cm textarea { margin-top: 8px; }
+
+/* Final */
+.end { padding-top: 48px; scroll-margin-top: 64px; display: grid; gap: 20px; }
+.end h2 { font-family: var(--f-display); font-weight: 700; font-size: 34px; line-height: 1; margin: 0; text-transform: uppercase; }
+.end p { margin: 0; max-width: 60ch; }
+
+.ticket-wrap { filter: drop-shadow(0 6px 14px var(--shadow)); max-width: 440px; width: 100%; }
+.edge { height: 8px; }
+.edge.top { background: radial-gradient(circle at 7px 0, transparent 5px, var(--ticket) 5.5px) 0 0 / 14px 8px repeat-x; }
+.edge.bottom { background: radial-gradient(circle at 7px 8px, transparent 5px, var(--ticket) 5.5px) 0 0 / 14px 8px repeat-x; }
+.ticket {
+  background: var(--ticket); color: var(--ticket-ink); font-family: var(--f-mono); font-size: 13px; line-height: 1.55;
+  padding: 16px 18px; display: grid; gap: 12px; overflow-wrap: anywhere;
+}
+.tk-head { text-align: center; display: grid; gap: 2px; }
+.tk-head b { font-size: 16px; letter-spacing: .12em; }
+.tk-head span { color: var(--ticket-muted); }
+.tk-sep { border: 0; border-top: 1px dashed var(--ticket-muted); margin: 0; }
+.tk-grp h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .06em; display: flex; justify-content: space-between; gap: 8px; }
+.tk-grp ul { margin: 0; padding: 0; list-style: none; }
+.tk-grp li { padding-left: 14px; position: relative; }
+.tk-grp li::before { content: "·"; position: absolute; left: 2px; }
+.tk-grp .empty { color: var(--ticket-muted); }
+.tk-kv { display: grid; gap: 6px; }
+.tk-kv div span { color: var(--ticket-muted); display: block; }
+.tk-foot { text-align: center; color: var(--ticket-muted); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 18px;
+  border-radius: 12px; border: 1px solid var(--ink); background: var(--card); color: var(--ink);
+  font: 600 16px var(--f-body); text-decoration: none; cursor: pointer;
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.wa { background: #1F7A4D; border-color: #1F7A4D; color: #FFFFFF; }
+.msg { font-size: 15px; color: var(--muted); min-height: 1.5em; }
+.msg.ok { color: #2E9E5B; font-weight: 600; }
+#copyBox { min-height: 160px; font-family: var(--f-mono); font-size: 13px; }
+
+@media (max-width: 460px) {
+  .legend, .toc ol { grid-template-columns: minmax(0, 1fr); }
+  .bar-name span { display: none; }
+}
+</style>
+
+</head>
+<body>
+<header class="bar" aria-label="Progreso">
+  <div class="bar-in">
+    <div class="bar-name"><b>Stop</b><span> · Cuestionario</span></div>
+    <div class="meter" role="progressbar" aria-label="Preguntas respondidas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="meter"><i id="meterFill"></i></div>
+    <div class="bar-count" id="barCount">0/0</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div class="eyebrow">Stop Drugstore · Concepción, Tucumán</div>
+    <h1>¿Qué querés que haga <em>tu sistema</em>?</h1>
+    <p class="lead">Este cuestionario es para armar el sistema de Stop a tu medida. Leé cada función y marcá cuánto la necesitás. No hay respuestas incorrectas: si algo no lo tenés claro, marcá «No sé» y lo charlamos.</p>
+    <p class="lead">Lleva unos 15 minutos. Si marcaste algo sin querer, tocalo de nuevo y se desmarca. Al final te muestra un resumen para mandárselo a Matías por WhatsApp.</p>
+    <div class="status" id="status" data-s="local">Preparando…</div>
+    <div class="field">
+      <label for="nombre">Tu nombre</label>
+      <input type="text" id="nombre" autocomplete="name" placeholder="Para saber quién respondió">
+    </div>
+    <div class="legend" aria-label="Qué significa cada opción">
+      <div class="lg-ya"><b>Lo necesito ya</b><span>Sin esto no lo usaría.</span></div>
+      <div class="lg-despues"><b>Más adelante</b><span>Estaría bueno, puede esperar.</span></div>
+      <div class="lg-no"><b>No me sirve</b><span>No lo usaría.</span></div>
+      <div class="lg-nose"><b>No sé</b><span>No lo tengo claro; lo charlamos.</span></div>
+    </div>
+    <nav class="toc" aria-label="Secciones">
+      <h2>Secciones</h2>
+      <ol id="toc"></ol>
+    </nav>
+  </section>
+
+  <div id="sections"></div>
+
+  <section class="end" id="enviar">
+    <h2>Tu resumen</h2>
+    <p id="endNote">Revisá el resumen y mandalo cuando quieras. Si después cambiás algo, lo podés volver a mandar.</p>
+    <div class="ticket-wrap">
+      <div class="edge top"></div>
+      <div class="ticket" id="ticket"></div>
+      <div class="edge bottom"></div>
+    </div>
+    <div class="actions">
+      <a class="btn wa" id="waBtn" href="https://wa.me/" target="_blank" rel="noopener">Mandar por WhatsApp</a>
+      <button type="button" class="btn" id="sendBtn" hidden>Marcar como terminado</button>
+      <button type="button" class="btn" id="copyBtn">Copiar el texto</button>
+    </div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <textarea id="copyBox" readonly hidden aria-label="Texto del resumen para copiar"></textarea>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var PRIO = [
+    { v: "ya", label: "Lo necesito ya" },
+    { v: "despues", label: "Más adelante" },
+    { v: "no", label: "No me sirve" },
+    { v: "nose", label: "No sé" }
+  ];
+  var PRIO_LABEL = { ya: "LO NECESITO YA", despues: "MÁS ADELANTE", nose: "NO SÉ", no: "NO ME SIRVE" };
+
+  var SECTIONS = [
+    { id: "negocio", title: "Tu negocio hoy", note: "Unas preguntas rápidas para entender cómo trabajás.", items: [
+      { id: "q_cajas", k: "single", t: "¿Cuántos puestos de cobro tenés?", opts: ["1", "2", "3 o más"] },
+      { id: "q_personal", k: "text", t: "¿Cuántas personas atienden y en cuántos turnos?", ph: "Ej.: 3 personas, 2 turnos" },
+      { id: "q_productos", k: "single", t: "¿Cuántos productos distintos vendés, más o menos?", opts: ["Menos de 500", "500 a 1.500", "1.500 a 3.000", "Más de 3.000", "No sé"] },
+      { id: "q_sistema", k: "text", t: "¿Qué sistema usás hoy?", ph: "Nombre del programa", none: "Nada" },
+      { id: "q_molesta", k: "long", t: "¿Qué es lo que más te molesta del sistema actual o de cómo trabajás hoy?", ph: "Lo que te hace perder tiempo o plata", none: "Nada" },
+      { id: "q_gusta", k: "long", t: "¿Qué hace bien hoy y no querés perder?", none: "Nada" },
+      { id: "q_una", k: "long", t: "Si el sistema nuevo te resolviera una sola cosa, ¿cuál sería?" }
+    ]},
+    { id: "mostrador", title: "El mostrador", note: "Cómo vendés y cobrás en el día a día.", items: [
+      { id: "v01", ref: "V-01", k: "prio", t: "Vender pasando el código de barras", h: "Escaneás el producto y aparece en el ticket con su precio." },
+      { id: "v02", ref: "V-02", k: "prio", t: "Buscar productos por nombre", h: "Para cuando el código no lee o el producto no tiene." },
+      { id: "v03", ref: "V-03", k: "prio", t: "Botones rápidos para lo que no tiene código", h: "Hielo, sueltos, cargas: un toque y listo." },
+      { id: "v04", ref: "V-04", k: "prio", t: "Vender por unidad o por pack", h: "Una gaseosa o el pack de 6, y el stock se descuenta bien en los dos casos." },
+      { id: "v05", ref: "V-05", k: "prio", t: "Cobrar con dos medios a la vez", h: "Parte en efectivo y parte con transferencia, con el vuelto calculado." },
+      { id: "v06", ref: "V-06", k: "prio", t: "Dejar una venta en espera", h: "Atendés a otro cliente y después la retomás." },
+      { id: "v07", ref: "V-07", k: "prio", t: "Devoluciones y anulaciones con motivo", h: "Queda registrado quién la hizo y por qué." },
+      { id: "v08", ref: "V-08", k: "prio", t: "Ticket impreso y cajón que se abre solo", h: "Al cobrar sale el ticket y se abre el cajón." },
+      { id: "v09", ref: "V-09", k: "prio", t: "Descuentos con límite según quién atiende", h: "El empleado puede hacer un descuento chico; uno grande lo autorizás vos." },
+      { id: "v10", ref: "V-10", k: "prio", t: "Aviso si algo se vende bajo el costo o sin stock", h: "Para detectar precios mal cargados." }
+    ]},
+    { id: "facturas", title: "Facturas y tickets", note: "Si esto lo maneja tu contador, marcá «No sé» y lo vemos con él.", items: [
+      { id: "q_comprobante", k: "single", t: "Hoy, ¿qué le das al cliente cuando compra?", opts: ["Factura electrónica en cada venta", "Ticket, y factura si la piden", "Solo ticket", "Nada", "No sé, lo maneja el contador"] },
+      { id: "q_fiscal", k: "single", t: "¿Cuál es tu situación ante ARCA?", opts: ["Monotributo", "Responsable inscripto", "No sé"] },
+      { id: "f01", ref: "F-01", k: "prio", t: "Hacer la factura electrónica desde el sistema", h: "Sin entrar a la página de ARCA: sale junto con el ticket." },
+      { id: "f05", ref: "F-05", k: "prio", t: "Factura a nombre de un cliente", h: "Cuando otro comercio o una empresa te la pide con su CUIT." },
+      { id: "f09", ref: "F-09", k: "prio", t: "Mandar la factura por WhatsApp", h: "Al cliente que la pide, sin imprimir." },
+      { id: "f08", ref: "F-08", k: "prio", t: "Listado mensual para el contador", h: "Todo lo facturado en el mes, listo para mandarle." },
+      { id: "f10", ref: "F-10", k: "prio", t: "Aviso del tope de monotributo", h: "Cuánto facturaste en el año y cuánto te falta para cambiar de categoría." }
+    ]},
+    { id: "caja", title: "Caja y cobros", items: [
+      { id: "q_medios", k: "multi", t: "¿Con qué te pagan hoy? Marcá todos los que uses.", opts: ["Efectivo", "Débito", "Crédito", "QR de Mercado Pago", "Otras billeteras QR", "Transferencia", "Fiado"] },
+      { id: "c01", ref: "C-01 / C-04", k: "prio", t: "Abrir y cerrar la caja por turno, con arqueo", h: "Cada uno arranca con un fondo; al cerrar, el sistema dice cuánto debería haber y muestra si falta o sobra." },
+      { id: "c03", ref: "C-03", k: "prio", t: "Registrar lo que sale de la caja", h: "Pagos a proveedores, retiros tuyos, gastos chicos." },
+      { id: "c05", ref: "C-05", k: "prio", t: "Ver el cierre de caja desde tu celular", h: "Sin estar en el local." },
+      { id: "c09", ref: "C-09", k: "prio", t: "Cobro con QR que se confirma solo", h: "El pago de Mercado Pago aparece en la venta sin revisar el celular." },
+      { id: "c10", ref: "C-10", k: "prio", t: "Controlar lo que te liquidan el posnet y Mercado Pago", h: "Comparar lo que vendiste con tarjeta y QR contra lo que te depositaron." }
+    ]},
+    { id: "stock", title: "Stock y reposición", items: [
+      { id: "s08", ref: "S-08", k: "prio", t: "Pasar tus productos del sistema actual", h: "Importarlos desde Excel para no cargarlos de nuevo." },
+      { id: "s06", ref: "S-06", k: "prio", t: "Aviso de productos que se están por acabar", h: "Con un mínimo que definís para cada producto." },
+      { id: "s09", ref: "S-09 / S-10", k: "prio", t: "Pedido sugerido para cada proveedor", h: "El sistema calcula qué pedir según lo que vendés, y se lo mandás al preventista por WhatsApp." },
+      { id: "s04", ref: "S-04", k: "prio", t: "Ajustes de stock con motivo", h: "Rotura, vencido, faltante o consumo propio, con quién lo hizo." },
+      { id: "s05", ref: "S-05", k: "prio", t: "Inventario escaneando con el celular", h: "Contás por rubro y el sistema te muestra las diferencias." },
+      { id: "s11", ref: "S-11", k: "prio", t: "Control de vencimientos", h: "Aviso de lácteos, golosinas o bebidas que están por vencer." },
+      { id: "s12", ref: "S-12", k: "prio", t: "Productos que no se venden", h: "Lo que no se movió en el último mes." },
+      { id: "s07", ref: "S-07", k: "prio", t: "Cuánta plata tenés en mercadería", h: "Tu stock valorizado a costo y a precio de venta." }
+    ]},
+    { id: "compras", title: "Compras y proveedores", items: [
+      { id: "q_proveedores", k: "text", t: "¿Con cuántos proveedores o preventistas trabajás, más o menos?", ph: "Ej.: 12" },
+      { id: "p02", ref: "P-02", k: "prio", t: "Cargar la mercadería que llega escaneando", h: "Suma al stock y actualiza el costo." },
+      { id: "p03", ref: "P-03", k: "prio", t: "Nuevo precio sugerido cuando sube un costo", h: "Vos lo aprobás antes de que cambie." },
+      { id: "p06", ref: "P-06", k: "prio", t: "Cargar la lista de precios del proveedor desde Excel", h: "Para actualizar muchos costos de una vez." },
+      { id: "p05", ref: "P-05", k: "prio", t: "Bonificaciones del proveedor", h: "Descuentos o mercadería de regalo, como el 12+1." },
+      { id: "p07", ref: "P-07 / P-08", k: "prio", t: "Saber cuánto le debés a cada proveedor", h: "Facturas pendientes, vencimientos y pagos hechos desde la caja, el banco o Mercado Pago." },
+      { id: "p09", ref: "P-09", k: "prio", t: "Devoluciones y canje de vencidos", h: "Lo que le devolvés al proveedor, descontado de lo que le debés." }
+    ]},
+    { id: "fiado", title: "Fiado", items: [
+      { id: "q_fia", k: "single", t: "¿Le fiás a clientes?", opts: ["Sí, a muchos", "Sí, a pocos", "No"] },
+      { id: "q_fia_como", k: "text", t: "Si fiás, ¿cómo lo anotás hoy?", ph: "Cuaderno, sistema, de memoria…", none: "Nada" },
+      { id: "cc01", ref: "CC-01 / CC-03", k: "prio", t: "Clientes con límite de fiado", h: "Si alguien se pasa, la venta se frena hasta que vos la autorices." },
+      { id: "cc04", ref: "CC-04", k: "prio", t: "Pagos parciales del fiado", h: "El cliente paga una parte y el saldo se actualiza solo." },
+      { id: "cc05", ref: "CC-05", k: "prio", t: "Mandar el resumen de deuda por WhatsApp", h: "Con el detalle de lo que llevó." },
+      { id: "cc06", ref: "CC-06", k: "prio", t: "Ver quién debe desde hace más tiempo", h: "Deudas de más de 30 y de más de 60 días." }
+    ]},
+    { id: "precios", title: "Precios y promociones", items: [
+      { id: "pr01", ref: "PR-01", k: "prio", t: "Precio calculado con tu margen", h: "Costo más el porcentaje que definís por rubro o producto, redondeado." },
+      { id: "pr02", ref: "PR-02", k: "prio", t: "Aumentos en lote", h: "Ej.: +8 % a todas las bebidas, viendo cómo quedan antes de confirmar." },
+      { id: "pr04", ref: "PR-04", k: "prio", t: "Etiquetas de precio para la góndola", h: "Imprimir solo las de los productos que cambiaron." },
+      { id: "pr05", ref: "PR-05", k: "prio", t: "Cigarrillos con precio fijo", h: "Que no los toquen los aumentos por margen." },
+      { id: "q_mayor", k: "single", t: "¿Vendés por mayor a otros comercios?", opts: ["Sí", "A veces", "No"] },
+      { id: "pr07", ref: "PR-07", k: "prio", t: "Precio mayorista o por cantidad", h: "Más barato desde cierta cantidad o para clientes mayoristas." },
+      { id: "pr09", ref: "PR-09", k: "prio", t: "Promociones", h: "2x1, 3x2, segunda unidad con descuento o combos, con fecha de inicio y fin." },
+      { id: "pr10", ref: "PR-10", k: "prio", t: "Descuento por pagar en efectivo", h: "O por cualquier otro medio de pago que elijas." }
+    ]},
+    { id: "numeros", title: "Números del negocio", items: [
+      { id: "r01", ref: "Tablero del día", k: "prio", t: "Resumen del día en el celular", h: "Cuánto vendiste, cuántos tickets y el ticket promedio." },
+      { id: "r02", ref: "Ventas por período", k: "prio", t: "Ventas por hora, día y empleado", h: "Para saber cuándo hay más movimiento." },
+      { id: "r03", ref: "Ranking", k: "prio", t: "Productos más vendidos", h: "Y los que casi no se venden." },
+      { id: "r04", ref: "Rentabilidad", k: "prio", t: "Ganancia real por producto y rubro", h: "Con el costo que tenía cada producto cuando lo vendiste." },
+      { id: "r05", ref: "Costos por proveedor", k: "prio", t: "Cuánto te aumentó cada proveedor", h: "Cómo fueron cambiando los costos en el tiempo." },
+      { id: "q_numeros", k: "long", t: "¿Qué números mirás hoy y cada cuánto?", none: "Nada" }
+    ]},
+    { id: "empleados", title: "Empleados y control", items: [
+      { id: "u01", ref: "Usuarios y roles", k: "prio", t: "Un usuario por empleado, con permisos según el puesto", h: "Cada uno entra con su clave; el cajero no puede cambiar precios ni ajustar stock." },
+      { id: "u03", ref: "Ver costos", k: "prio", t: "Que los empleados no vean costos ni ganancias", h: "Esa información queda solo para vos." },
+      { id: "u04", ref: "Auditoría", k: "prio", t: "Historial de cambios", h: "Quién cambió un precio, anuló una venta o ajustó stock, y cuándo." }
+    ]},
+    { id: "otros", title: "Otras cosas", items: [
+      { id: "q_recargas", k: "single", t: "¿Vendés recargas (SUBE, celular) o cobrás servicios?", opts: ["Sí", "No"] },
+      { id: "q_granel", k: "single", t: "¿Vendés algo suelto que se pese?", opts: ["Sí", "No"] },
+      { id: "x01", ref: "Tienda virtual", k: "prio", t: "Vender online o tomar pedidos por WhatsApp", h: "Un catálogo con tus productos y precios." },
+      { id: "q_sucursal", k: "single", t: "¿Pensás abrir otro local?", opts: ["Sí", "Tal vez", "No"] },
+      { id: "q_equipos", k: "multi", t: "¿Qué equipos tenés en el mostrador?", opts: ["PC", "Notebook", "Lector de códigos", "Impresora de tickets", "Cajón de dinero", "Posnet", "Balanza", "Tablet o celular"], none: "Nada" },
+      { id: "q_otro", k: "long", t: "¿Algo que no te pregunté y te gustaría que el sistema haga?", none: "Nada" }
+    ]}
+  ];
+
+  var ALL = [];
+  SECTIONS.forEach(function (s) { s.items.forEach(function (it) { it.sec = s.id; ALL.push(it); }); });
+  var BY_ID = {};
+  ALL.forEach(function (it) { BY_ID[it.id] = it; });
+
+  var KEY = "stop-cuestionario-v1";
+  var S = { nombre: "", r: {}, c: {}, estado: "borrador", enviado: null };
+  var storageOk = false;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+  function slug(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
+  /* ---------- Render ---------- */
+  function renderItem(it) {
+    var html = "";
+    if (it.k === "prio" || it.k === "single" || it.k === "multi") {
+      var isQ = it.k !== "prio";
+      html += '<fieldset class="item' + (isQ ? " q" : "") + '" id="it-' + it.id + '"><legend><span class="t">' + esc(it.t) + "</span>" + (it.h ? '<span class="h">' + esc(it.h) + "</span>" : "") + "</legend>";
+      html += '<div class="chips' + (it.k === "multi" ? " multi" : "") + '">';
+      var opts = it.k === "prio" ? PRIO : it.opts.concat(it.none ? [it.none] : []).map(function (o) { return { v: o, label: o }; });
+      opts.forEach(function (o) {
+        var oid = it.id + "__" + slug(o.v);
+        var type = it.k === "multi" ? "checkbox" : "radio";
+        html += '<input class="sr" type="' + type + '" id="' + oid + '" name="' + it.id + '" value="' + esc(o.v) + '">';
+        html += '<label for="' + oid + '" data-p="' + (it.k === "prio" ? o.v : "opt") + '">' + esc(o.label) + "</label>";
+      });
+      html += "</div></fieldset>";
+    } else {
+      var fid = "f-" + it.id;
+      html += '<div class="item q field" id="it-' + it.id + '"><label class="q-label" for="' + fid + '"><span class="t">' + esc(it.t) + "</span></label>";
+      if (it.k === "long") {
+        html += '<textarea id="' + fid + '" data-id="' + it.id + '"' + (it.ph ? ' placeholder="' + esc(it.ph) + '"' : "") + "></textarea>";
+      } else {
+        html += '<input type="text" id="' + fid + '" data-id="' + it.id + '"' + (it.ph ? ' placeholder="' + esc(it.ph) + '"' : "") + ">";
+      }
+      if (it.none) {
+        var nid = fid + "__nada";
+        html += '<div class="chips multi"><input class="sr" type="checkbox" id="' + nid + '" data-none="' + it.id + '"><label for="' + nid + '" data-p="opt">' + esc(it.none) + "</label></div>";
+      }
+      html += "</div>";
+    }
+    return html;
+  }
+
+  function render() {
+    var out = "";
+    var toc = "";
+    SECTIONS.forEach(function (s, i) {
+      out += '<section class="sec" id="sec-' + s.id + '" aria-labelledby="h-' + s.id + '">';
+      out += '<div class="sec-head"><div class="eyebrow">Sección ' + (i + 1) + " de " + SECTIONS.length + '</div><h2 id="h-' + s.id + '">' + esc(s.title) + "</h2>" + (s.note ? '<p class="sec-note">' + esc(s.note) + "</p>" : "") + "</div>";
+      s.items.forEach(function (it) { out += renderItem(it); });
+      out += '<details class="cm" id="cm-' + s.id + '"><summary>Agregar un comentario sobre esta sección</summary><textarea id="c-' + s.id + '" data-c="' + s.id + '" aria-label="Comentario sobre ' + esc(s.title) + '"></textarea></details>';
+      out += "</section>";
+      toc += '<li><a href="#sec-' + s.id + '"><span>' + esc(s.title) + '</span><span class="n" id="n-' + s.id + '"></span></a></li>';
+    });
+    toc += '<li><a href="#enviar"><span>Resumen y envío</span><span class="n">→</span></a></li>';
+    document.getElementById("sections").innerHTML = out;
+    document.getElementById("toc").innerHTML = toc;
+  }
+
+  function applyState() {
+    document.getElementById("nombre").value = S.nombre || "";
+    ALL.forEach(function (it) {
+      var val = S.r[it.id];
+      if (it.k === "prio" || it.k === "single") {
+        var inputs = document.getElementsByName(it.id);
+        for (var i = 0; i < inputs.length; i++) inputs[i].checked = (val != null && inputs[i].value === val);
+      } else if (it.k === "multi") {
+        var arr = Array.isArray(val) ? val : [];
+        var boxes = document.getElementsByName(it.id);
+        for (var j = 0; j < boxes.length; j++) boxes[j].checked = arr.indexOf(boxes[j].value) !== -1;
+      } else {
+        var el = document.getElementById("f-" + it.id);
+        var isNone = !!it.none && val === it.none;
+        if (el) { el.value = (typeof val === "string" && !isNone) ? val : ""; el.disabled = isNone; }
+        var nb = document.getElementById("f-" + it.id + "__nada");
+        if (nb) nb.checked = isNone;
+      }
+    });
+    SECTIONS.forEach(function (s) {
+      var ta = document.getElementById("c-" + s.id);
+      var txt = S.c[s.id] || "";
+      ta.value = txt;
+      if (txt) document.getElementById("cm-" + s.id).open = true;
+    });
+  }
+
+  /* ---------- Progreso ---------- */
+  function answered(it) {
+    var v = S.r[it.id];
+    if (Array.isArray(v)) return v.length > 0;
+    return typeof v === "string" && v.trim() !== "";
+  }
+  function updateProgress() {
+    var done = 0;
+    ALL.forEach(function (it) { if (answered(it)) done++; });
+    var pct = ALL.length ? Math.round(done / ALL.length * 100) : 0;
+    document.getElementById("meterFill").style.width = pct + "%";
+    document.getElementById("meter").setAttribute("aria-valuenow", String(pct));
+    document.getElementById("barCount").textContent = done + "/" + ALL.length;
+    SECTIONS.forEach(function (s) {
+      var d = 0;
+      s.items.forEach(function (it) { if (answered(it)) d++; });
+      var el = document.getElementById("n-" + s.id);
+      el.textContent = d + "/" + s.items.length;
+      el.classList.toggle("full", d === s.items.length);
+    });
+  }
+
+  /* ---------- Resumen ---------- */
+  function groups() {
+    var g = { ya: [], despues: [], nose: [], no: [], pend: [] };
+    ALL.forEach(function (it) {
+      if (it.k !== "prio") return;
+      var v = S.r[it.id];
+      if (g[v]) g[v].push(it); else g.pend.push(it);
+    });
+    return g;
+  }
+  function qAnswers() {
+    var list = [];
+    ALL.forEach(function (it) {
+      if (it.k === "prio") return;
+      if (!answered(it)) return;
+      var v = S.r[it.id];
+      list.push({ q: it.t, a: Array.isArray(v) ? v.join(", ") : v.trim() });
+    });
+    return list;
+  }
+  function comments() {
+    var list = [];
+    SECTIONS.forEach(function (s) {
+      var t = (S.c[s.id] || "").trim();
+      if (t) list.push({ s: s.title, t: t });
+    });
+    return list;
+  }
+  function today() {
+    var d = new Date();
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+  }
+
+  function renderTicket() {
+    var g = groups();
+    var h = '<div class="tk-head"><b>STOP DRUGSTORE</b><span>Cuestionario del sistema</span><span>' + esc(S.nombre ? S.nombre : "Sin nombre") + " · " + today() + "</span></div>";
+    h += '<hr class="tk-sep">';
+    ["ya", "despues", "nose", "no"].forEach(function (k) {
+      h += '<div class="tk-grp"><h3><span>' + PRIO_LABEL[k] + "</span><span>" + g[k].length + "</span></h3>";
+      if (g[k].length) {
+        h += "<ul>" + g[k].map(function (it) { return "<li>" + esc(it.t) + "</li>"; }).join("") + "</ul>";
+      } else {
+        h += '<div class="empty">—</div>';
+      }
+      h += "</div>";
+    });
+    if (g.pend.length) {
+      h += '<hr class="tk-sep"><div class="tk-grp"><h3><span>SIN RESPONDER</span><span>' + g.pend.length + "</span></h3><ul>" + g.pend.map(function (it) { return '<li><a href="#it-' + it.id + '" style="color:inherit">' + esc(it.t) + "</a></li>"; }).join("") + "</ul></div>";
+    }
+    var qa = qAnswers();
+    if (qa.length) {
+      h += '<hr class="tk-sep"><div class="tk-grp"><h3><span>RESPUESTAS</span></h3><div class="tk-kv">' + qa.map(function (x) { return "<div><span>" + esc(x.q) + "</span>" + esc(x.a) + "</div>"; }).join("") + "</div></div>";
+    }
+    var cm = comments();
+    if (cm.length) {
+      h += '<hr class="tk-sep"><div class="tk-grp"><h3><span>COMENTARIOS</span></h3><div class="tk-kv">' + cm.map(function (x) { return "<div><span>" + esc(x.s) + "</span>" + esc(x.t) + "</div>"; }).join("") + "</div></div>";
+    }
+    h += '<hr class="tk-sep"><div class="tk-foot">¡Gracias!</div>';
+    document.getElementById("ticket").innerHTML = h;
+    document.getElementById("waBtn").href = waUrl();
+  }
+
+  /* WhatsApp de Matías: +54 9 3865 52-3225 (formato internacional, sin + ni espacios). */
+  var WA_BASE = "https://wa.me/5493865523225?text=";
+  function waUrl() {
+    var url = WA_BASE + encodeURIComponent(plainText({ stars: true }));
+    if (url.length > 8000) {
+      url = WA_BASE + encodeURIComponent(plainText({ stars: true, refs: false, pend: false }) + "\n\n(Resumen acortado para que entre en el mensaje.)");
+    }
+    return url;
+  }
+
+  function plainText(o) {
+    o = o || {};
+    var st = o.stars ? "*" : "";
+    var refs = o.refs !== false;
+    var g = groups();
+    var lines = [];
+    var line = function (it) { lines.push("- " + it.t + (refs ? " [" + it.ref + "]" : "")); };
+    lines.push(st + "Cuestionario sistema Stop Drugstore" + st);
+    lines.push("Completó: " + (S.nombre || "sin nombre") + " · " + today());
+    ["ya", "despues", "nose", "no"].forEach(function (k) {
+      lines.push("");
+      lines.push(st + PRIO_LABEL[k] + " (" + g[k].length + ")" + st);
+      g[k].forEach(line);
+    });
+    if (g.pend.length && o.pend !== false) {
+      lines.push("");
+      lines.push(st + "SIN RESPONDER (" + g.pend.length + ")" + st);
+      g.pend.forEach(line);
+    }
+    var qa = qAnswers();
+    if (qa.length) {
+      lines.push("");
+      lines.push(st + "RESPUESTAS" + st);
+      qa.forEach(function (x) { lines.push("- " + x.q + " " + x.a); });
+    }
+    var cm = comments();
+    if (cm.length) {
+      lines.push("");
+      lines.push(st + "COMENTARIOS" + st);
+      cm.forEach(function (x) { lines.push("- " + x.s + ": " + x.t); });
+    }
+    return lines.join("\n");
+  }
+
+  /* ---------- Guardado ---------- */
+  var statusEl = document.getElementById("status");
+  function setStatus(s, text) { statusEl.dataset.s = s; statusEl.textContent = text; }
+  function localStatus() {
+    if (remote.mode === "online") return;
+    if (storageOk) setStatus("local", "Tus respuestas se guardan en este dispositivo. Podés dejarlo a medias y seguir después.");
+    else setStatus("warn", "No se pueden guardar en este dispositivo: completalo de una vez y mandalo al final.");
+  }
+
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      storageOk = true;
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && typeof d === "object") {
+          S.nombre = typeof d.nombre === "string" ? d.nombre : "";
+          S.r = d.r && typeof d.r === "object" ? d.r : {};
+          S.c = d.c && typeof d.c === "object" ? d.c : {};
+          S.estado = d.estado === "enviado" ? "enviado" : "borrador";
+          S.enviado = d.enviado || null;
+        }
+      }
+    } catch (e) { storageOk = false; }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); storageOk = true; } catch (e) { storageOk = false; }
+  }
+  function isEmpty() {
+    return !S.nombre && Object.keys(S.r).length === 0 && Object.keys(S.c).length === 0;
+  }
+
+  var remote = { ref: null, mode: "local", saving: false, pending: false, timer: null };
+
+  function payload() {
+    return {
+      nombre: S.nombre,
+      respuestas: JSON.parse(JSON.stringify(S.r)),
+      comentarios: JSON.parse(JSON.stringify(S.c)),
+      estado: S.estado,
+      enviado: S.enviado,
+      actualizado: new Date().toISOString(),
+      formato: 1
+    };
+  }
+  function scheduleRemote() {
+    if (remote.mode !== "online") return;
+    clearTimeout(remote.timer);
+    remote.timer = setTimeout(saveRemote, 1200);
+  }
+  function saveRemote(retried) {
+    if (remote.mode !== "online") return Promise.resolve(false);
+    if (remote.saving) { remote.pending = true; return Promise.resolve(false); }
+    remote.saving = true;
+    setStatus("saving", "Guardando…");
+    return remote.ref.set(payload()).then(function () {
+      setStatus("online", "Tus respuestas se guardan solas. Podés dejarlo a medias y seguir después.");
+      return true;
+    }, function (e) {
+      var code = e && e.code;
+      if (code === "unavailable" && !retried) {
+        remote.saving = false;
+        return new Promise(function (res) { setTimeout(res, 800 + Math.random() * 800); }).then(function () { return saveRemote(true); });
+      }
+      if (code === "unavailable") {
+        setStatus("warn", "No se pudo guardar en línea ahora. Tus respuestas siguen en este dispositivo.");
+      } else {
+        remote.mode = "local";
+        updateSendUI();
+        localStatus();
+      }
+      return false;
+    }).then(function (ok) {
+      remote.saving = false;
+      if (remote.pending) { remote.pending = false; return saveRemote(); }
+      return ok;
+    });
+  }
+
+  function initRemote() {
+    if (!window.claude || typeof window.claude.use !== "function") return;
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function (res) {
+      var db = res[0], user = res[1];
+      if (!db || !user) return;
+      return user.id().then(function (uid) {
+        if (!uid) return;
+        var ref;
+        try { ref = db.doc("respuestas/" + uid); } catch (e) { return; }
+        return ref.get().then(function (snap) {
+          remote.ref = ref;
+          remote.mode = "online";
+          if (snap.exists && isEmpty()) {
+            var d = snap.data() || {};
+            S.nombre = typeof d.nombre === "string" ? d.nombre : "";
+            S.r = d.respuestas ? JSON.parse(JSON.stringify(d.respuestas)) : {};
+            S.c = d.comentarios ? JSON.parse(JSON.stringify(d.comentarios)) : {};
+            S.estado = d.estado === "enviado" ? "enviado" : "borrador";
+            S.enviado = d.enviado || null;
+            saveLocal();
+            applyState();
+            refresh();
+          }
+          setStatus("online", "Tus respuestas se guardan solas. Podés dejarlo a medias y seguir después.");
+          updateSendUI();
+          if (!isEmpty() && !snap.exists) scheduleRemote();
+        });
+      });
+    }).catch(function () { /* queda en modo local */ });
+  }
+
+  function updateSendUI() {
+    var online = remote.mode === "online";
+    document.getElementById("sendBtn").hidden = !online;
+    document.getElementById("endNote").textContent = online
+      ? "Tus respuestas se guardan solas. Para mandarle el resumen a Matías, tocá «Mandar por WhatsApp»: se abre su chat con todo escrito y solo tenés que tocar Enviar."
+      : "Revisá el resumen y tocá «Mandar por WhatsApp»: se abre el chat de Matías con tus respuestas ya escritas y solo tenés que tocar Enviar. Si después cambiás algo, lo podés volver a mandar.";
+    if (online && S.estado === "enviado") setMsg("Ya marcaste el cuestionario como terminado. Lo que cambies se guarda solo.", true);
+  }
+
+  var msgEl = document.getElementById("msg");
+  function setMsg(t, ok) { msgEl.textContent = t; msgEl.classList.toggle("ok", !!ok); }
+
+  /* ---------- Eventos ---------- */
+  var renderTimer = null;
+  function refresh() { updateProgress(); renderTicket(); }
+  function changed(immediate) {
+    saveLocal();
+    if (remote.mode !== "online") localStatus();
+    scheduleRemote();
+    if (immediate) { refresh(); }
+    else { clearTimeout(renderTimer); renderTimer = setTimeout(refresh, 250); }
+  }
+
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el && el.dataset && el.dataset.none && BY_ID[el.dataset.none]) {
+      var nit = BY_ID[el.dataset.none];
+      var field = document.getElementById("f-" + nit.id);
+      if (el.checked) { S.r[nit.id] = nit.none; field.value = ""; field.disabled = true; }
+      else { delete S.r[nit.id]; field.disabled = false; field.focus(); }
+      changed(true);
+      return;
+    }
+    if (!el || !el.name || !BY_ID[el.name]) return;
+    var it = BY_ID[el.name];
+    if (it.k === "multi") {
+      var boxes = document.getElementsByName(it.id), arr = [];
+      if (it.none && el.checked) {
+        for (var k = 0; k < boxes.length; k++) {
+          if (el.value === it.none ? boxes[k] !== el : boxes[k].value === it.none) boxes[k].checked = false;
+        }
+      }
+      for (var i = 0; i < boxes.length; i++) if (boxes[i].checked) arr.push(boxes[i].value);
+      if (arr.length) S.r[it.id] = arr; else delete S.r[it.id];
+    } else {
+      S.r[it.id] = el.value;
+    }
+    changed(true);
+  });
+
+  /* Tocar de nuevo una opción ya marcada la desmarca (los radios no lo hacen solos). */
+  document.addEventListener("click", function (e) {
+    var el = e.target;
+    if (!el || el.type !== "radio" || !BY_ID[el.name]) return;
+    if (S.r[el.name] === el.value) {
+      el.checked = false;
+      delete S.r[el.name];
+      changed(true);
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var el = e.target;
+    if (e.key !== " " || !el || el.type !== "radio" || !BY_ID[el.name]) return;
+    if (el.checked && S.r[el.name] === el.value) {
+      e.preventDefault();
+      el.checked = false;
+      delete S.r[el.name];
+      changed(true);
+    }
+  });
+
+  document.addEventListener("input", function (e) {
+    var el = e.target;
+    if (!el) return;
+    if (el.id === "nombre") { S.nombre = el.value; changed(false); return; }
+    if (el.dataset && el.dataset.id && BY_ID[el.dataset.id]) {
+      if (el.value.trim()) S.r[el.dataset.id] = el.value; else delete S.r[el.dataset.id];
+      changed(false);
+      return;
+    }
+    if (el.dataset && el.dataset.c) {
+      if (el.value.trim()) S.c[el.dataset.c] = el.value; else delete S.c[el.dataset.c];
+      changed(false);
+    }
+  });
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    if (remote.mode !== "online") return;
+    S.estado = "enviado";
+    S.enviado = new Date().toISOString();
+    saveLocal();
+    clearTimeout(remote.timer);
+    setMsg("Guardando…", false);
+    saveRemote().then(function (ok) {
+      if (ok) setMsg("Listo, quedó marcado como terminado. No te olvides de mandarlo por WhatsApp.", true);
+      else setMsg("No se pudo guardar en línea. Mandalo por WhatsApp igual.", false);
+    });
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = plainText();
+    var box = document.getElementById("copyBox");
+    function fallback() {
+      box.hidden = false;
+      box.value = text;
+      box.focus();
+      box.select();
+      setMsg("Seleccioná el texto de abajo y copialo.", false);
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          box.hidden = true;
+          setMsg("Texto copiado. Pegalo en el chat de Matías.", true);
+        }, fallback);
+      } else { fallback(); }
+    } catch (e) { fallback(); }
+  });
+
+  /* ---------- Inicio ---------- */
+  render();
+  loadLocal();
+  applyState();
+  refresh();
+  localStatus();
+  updateSendUI();
+  initRemote();
+})();
+</script>
+
+</body>
+</html>
